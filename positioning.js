@@ -32,34 +32,25 @@ const state = {
   reference: null   // 位置合わせが終わった時点の手の範囲（演奏中のずれの基準）
 };
 
-// 演奏中、最初の位置からどれだけずれたら知らせるか
-// 演奏中の警告は演奏の邪魔にならないよう緩め（細かいずれでは知らせない）
-const DRIFT_TOL_X = 0.15;
-const DRIFT_TOL_Y = 0.16;
-const DRIFT_SCALE = 0.40;   // 手の横幅が最初より±40%以上変わったら（近づいた／離れた）
-
-export function getReferenceBox() {
-  return state.reference;
-}
-
 /**
- * 演奏中：位置合わせで決めた最初の手の位置からのずれを評価する
+ * 演奏中：手が画面外（未検出または画面端からのはみ出し）に出ていないかを評価する
  */
 export function evaluateDrift(landmarks) {
   const ref = state.reference;
   const base = evaluateHandPosition(landmarks);
-  if (!ref || !base.box) return { ...base, ref };
+  if (!base.box) return { ...base, ref };
   const b = base.box;
-  const cx = (b.minX + b.maxX) / 2, cy = (b.minY + b.maxY) / 2;
-  const rcx = (ref.minX + ref.maxX) / 2, rcy = (ref.minY + ref.maxY) / 2;
-  const scale = (b.maxX - b.minX) / Math.max(0.01, ref.maxX - ref.minX);
-  let code = "ok", message = "最初の位置のままです", dir = null;
-  if (scale > 1 + DRIFT_SCALE) { code = "closer"; dir = "away"; message = "最初よりカメラに近づいています。少し離してください"; }
-  else if (scale < 1 - DRIFT_SCALE) { code = "farther"; dir = "closer"; message = "最初よりカメラから離れています。少し近づけてください"; }
-  else if (cx - rcx > DRIFT_TOL_X) { code = "right"; dir = "left"; message = "最初の位置より右にずれています。手を左へ戻してください"; }
-  else if (rcx - cx > DRIFT_TOL_X) { code = "left"; dir = "right"; message = "最初の位置より左にずれています。手を右へ戻してください"; }
-  else if (cy - rcy > DRIFT_TOL_Y) { code = "down"; dir = "up"; message = "最初の位置より下にずれています。手を少し上へ"; }
-  else if (rcy - cy > DRIFT_TOL_Y) { code = "up"; dir = "down"; message = "最初の位置より上にずれています。手を少し下へ"; }
+  let code = "ok", message = "画面内に収まっています", dir = null;
+  // 画面端の余白（EDGE_MARGIN）を超えてはみ出している方向を判定する
+  if (b.minX <= EDGE_MARGIN) {
+    code = "edge"; dir = "right"; message = "手が画面の左端から外れています。右へ戻してください";
+  } else if (b.maxX >= 1 - EDGE_MARGIN) {
+    code = "edge"; dir = "left"; message = "手が画面の右端から外れています。左へ戻してください";
+  } else if (b.minY <= EDGE_MARGIN) {
+    code = "edge"; dir = "down"; message = "手が画面の上端から外れています。下へ戻してください";
+  } else if (b.maxY >= 1 - EDGE_MARGIN) {
+    code = "edge"; dir = "up"; message = "手が画面の下端から外れています。上へ戻してください";
+  }
   return { ok: code === "ok", code, dir, message, box: b, ref };
 }
 

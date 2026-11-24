@@ -119,6 +119,7 @@ export function parseMusicXmlMelody(xmlText, opt = {}) {
           continue;
         }
         const pitch = directChild(el, "pitch");
+        if (!pitch) continue;
         const step = childText(pitch, "step");
         const alter = Number(childText(pitch, "alter") || 0);
         const octave = Number(childText(pitch, "octave"));
@@ -244,6 +245,7 @@ function readAccompanimentPart(part) {
         measureLen = Math.max(measureLen, pos - time);
         if (directChild(el, "rest")) continue;
         const pitch = directChild(el, "pitch");
+        if (!pitch) continue;
         const step = childText(pitch, "step");
         const alter = Number(childText(pitch, "alter") || 0);
         const octave = Number(childText(pitch, "octave"));

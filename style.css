@@ -337,14 +337,31 @@ html, body {
   stroke: none;
 }
 
-/* 各指オーバーレイ（通常時は完全非表示でつなぎ目・重なりを物理排除） */
+/* 各指の固有カラー（指別カラーコーディング用） */
+#hand-finger-THUMB  { --finger-color: #FF4D4F; }
+#hand-finger-INDEX  { --finger-color: #FFD600; }
+#hand-finger-MIDDLE { --finger-color: #00E676; }
+#hand-finger-RING   { --finger-color: #29B6F6; }
+#hand-finger-PINKY  { --finger-color: #B388FF; }
+
+/* 各指オーバーレイ（通常時は非表示、色コーディングON時は非アクティブ指も薄く着色） */
 .hand-finger {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
-/* 選択された指（アクティブ：鮮やかな水色 #00E5FF ソリッド＋水色ネオングロー） */
+body.color-coding-on .hand-finger {
+  opacity: 0.42;
+}
+
+body.color-coding-on .hand-finger .finger-path {
+  fill: var(--finger-color, #00E5FF);
+  stroke: none;
+}
+
+/* 選択された指（アクティブ：指色またはシアンで鮮やかに発光） */
+body.color-coding-on .hand-finger.active,
 .hand-finger.active {
   opacity: 1;
 }
@@ -354,6 +371,33 @@ html, body {
   fill: var(--active-finger-color, #00E5FF);
   stroke: none;
   filter: drop-shadow(0 0 6px var(--active-finger-color, #00E5FF)) drop-shadow(0 0 14px var(--active-finger-color, #00E5FF));
+}
+
+/* 指番号ラベル（指番号ガイド表示ONのときのみ表示） */
+.finger-num-label {
+  display: none;
+  font-size: 11px;
+  font-weight: 800;
+  fill: #ffffff;
+  text-anchor: middle;
+  dominant-baseline: central;
+  paint-order: stroke;
+  stroke: rgba(0, 0, 0, 0.78);
+  stroke-width: 2.6px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+body.finger-number-mode .finger-num-label {
+  display: block;
+}
+
+body.finger-number-mode .hand-finger {
+  opacity: 1;
+}
+
+body.finger-number-mode:not(.color-coding-on) .hand-finger:not(.active) .finger-path {
+  fill: transparent;
 }
 
 /* 打鍵時の一瞬のポップフィードバック */

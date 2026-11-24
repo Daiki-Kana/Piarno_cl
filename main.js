@@ -15,6 +15,8 @@ import canonXml from "./songs/canon.musicxml?raw";
 import saintsXml from "./songs/saints.musicxml?raw";
 import happyBirthdayXml from "./songs/happy_birthday.musicxml?raw";
 import furEliseXml from "./songs/fur_elise.musicxml?raw";
+import furusatoXml from "./songs/furusato.musicxml?raw";
+import ifYoureHappyXml from "./songs/if_youre_happy.musicxml?raw";
 import { loadInstrument, playInstrument, isInstrumentReady } from "./instruments.js";
 import { setupRecordButton, onPlayStart, onHit as onRecordHit, recordFrame, isRecording } from "./recorder.js";
 import { startPositioning, updatePositioning, isPositioning, evaluateDrift, directionGraphic } from "./positioning.js";
@@ -917,6 +919,140 @@ const SCORE_SONGS = [
   return { ...def, score, sequence: score.notes, bpm: score.bpm || 90 };
 });
 
+// ふるさと（岡野貞一 作曲／平吉毅州 編曲）— ステップデータ + MusicXML のリズム・拍子・テンポを統合
+const FURUSATO_SEQUENCE = [
+  { step: 1, phrase: 1, fingerNum: 1, fingerKey: "THUMB", note: "ソ", rightNote: "G4", autoLeftNote: ["G3", "B3", "D4"] },
+  { step: 2, phrase: 1, fingerNum: 1, fingerKey: "THUMB", note: "ソ", rightNote: "G4", autoLeftNote: ["G3", "B3", "D4"] },
+  { step: 3, phrase: 1, fingerNum: 1, fingerKey: "THUMB", note: "ソ", rightNote: "G4", autoLeftNote: ["G3", "B3", "D4"] },
+  { step: 4, phrase: 1, fingerNum: 2, fingerKey: "INDEX", note: "ラ", rightNote: "A4", autoLeftNote: ["F#3", "C4", "D4"] },
+  { step: 5, phrase: 1, fingerNum: 3, fingerKey: "MIDDLE", note: "シ", rightNote: "B4", autoLeftNote: ["F#3", "C4", "D4"] },
+  { step: 6, phrase: 1, fingerNum: 2, fingerKey: "INDEX", note: "ラ", rightNote: "A4", autoLeftNote: ["F#3", "C4", "D4"] },
+  { step: 7, phrase: 1, fingerNum: 3, fingerKey: "MIDDLE", note: "シ", rightNote: "B4", autoLeftNote: ["G3", "B3", "D4"] },
+  { step: 8, phrase: 1, fingerNum: 3, fingerKey: "MIDDLE", note: "シ", rightNote: "B4", autoLeftNote: ["G3", "D4", "G4"] },
+  { step: 9, phrase: 1, fingerNum: 4, fingerKey: "RING", note: "ド", rightNote: "C5", autoLeftNote: ["A3", "D4", "G4"] },
+  { step: 10, phrase: 1, fingerNum: 5, fingerKey: "PINKY", note: "レ", rightNote: "D5", autoLeftNote: ["B3", "D4", "G4"] },
+  { step: 11, phrase: 2, fingerNum: 3, fingerKey: "MIDDLE", note: "ド", rightNote: "C5", autoLeftNote: ["C4", "E4"] },
+  { step: 12, phrase: 2, fingerNum: 4, fingerKey: "RING", note: "レ", rightNote: "D5", autoLeftNote: ["B3", "D4", "G4"] },
+  { step: 13, phrase: 2, fingerNum: 5, fingerKey: "PINKY", note: "ミ", rightNote: "E5", autoLeftNote: ["A3", "C4", "G4"] },
+  { step: 14, phrase: 2, fingerNum: 2, fingerKey: "INDEX", note: "シ", rightNote: "B4", autoLeftNote: ["B3", "D4", "F#4"] },
+  { step: 15, phrase: 2, fingerNum: 3, fingerKey: "MIDDLE", note: "ド", rightNote: "C5", autoLeftNote: ["A3", "D4", "F#4"] },
+  { step: 16, phrase: 2, fingerNum: 2, fingerKey: "INDEX", note: "シ", rightNote: "B4", autoLeftNote: ["G#3", "D4", "F4"] },
+  { step: 17, phrase: 2, fingerNum: 3, fingerKey: "MIDDLE", note: "ラ", rightNote: "A4", autoLeftNote: ["A3", "C4", "E4"] },
+  { step: 18, phrase: 2, fingerNum: 3, fingerKey: "MIDDLE", note: "ラ", rightNote: "A4", autoLeftNote: ["A3", "C4", "E4"] },
+  { step: 19, phrase: 2, fingerNum: 1, fingerKey: "THUMB", note: "ファ", rightNote: "F#4", autoLeftNote: ["D3", "C4", "D4"] },
+  { step: 20, phrase: 2, fingerNum: 2, fingerKey: "INDEX", note: "ソ", rightNote: "G4", autoLeftNote: ["G3", "B3", "D4"] },
+  { step: 21, phrase: 3, fingerNum: 5, fingerKey: "PINKY", note: "ラ", rightNote: "A4", autoLeftNote: ["D3", "F#3", "D4"] },
+  { step: 22, phrase: 3, fingerNum: 4, fingerKey: "RING", note: "ソ", rightNote: "G4", autoLeftNote: ["D3", "E3", "D4"] },
+  { step: 23, phrase: 3, fingerNum: 5, fingerKey: "PINKY", note: "ラ", rightNote: "A4", autoLeftNote: ["D3", "F#3", "D4"] },
+  { step: 24, phrase: 3, fingerNum: 1, fingerKey: "THUMB", note: "レ", rightNote: "D4", autoLeftNote: ["C3", "F#3"] },
+  { step: 25, phrase: 3, fingerNum: 1, fingerKey: "THUMB", note: "ソ", rightNote: "G4", autoLeftNote: ["B2", "G3", "D4"] },
+  { step: 26, phrase: 3, fingerNum: 2, fingerKey: "INDEX", note: "ラ", rightNote: "A4", autoLeftNote: ["D3", "E3", "D4"] },
+  { step: 27, phrase: 3, fingerNum: 3, fingerKey: "MIDDLE", note: "シ", rightNote: "B4", autoLeftNote: ["G3", "D4"] },
+  { step: 28, phrase: 3, fingerNum: 2, fingerKey: "INDEX", note: "シ", rightNote: "B4", autoLeftNote: ["F3", "D4", "G4"] },
+  { step: 29, phrase: 3, fingerNum: 3, fingerKey: "MIDDLE", note: "ド", rightNote: "C5", autoLeftNote: ["E3", "C4", "G4"] },
+  { step: 30, phrase: 3, fingerNum: 2, fingerKey: "INDEX", note: "シ", rightNote: "B4", autoLeftNote: ["E3", "C4", "G4"] },
+  { step: 31, phrase: 3, fingerNum: 3, fingerKey: "MIDDLE", note: "ド", rightNote: "C5", autoLeftNote: ["E3", "C4", "A4"] },
+  { step: 32, phrase: 3, fingerNum: 5, fingerKey: "PINKY", note: "ミ", rightNote: "E5", autoLeftNote: ["C3", "C4", "A4"] },
+  { step: 33, phrase: 3, fingerNum: 4, fingerKey: "RING", note: "レ", rightNote: "D5", autoLeftNote: ["G3", "B3", "G4"] },
+  { step: 34, phrase: 3, fingerNum: 3, fingerKey: "MIDDLE", note: "ド", rightNote: "C5", autoLeftNote: ["G3", "C4", "G4"] },
+  { step: 35, phrase: 3, fingerNum: 2, fingerKey: "INDEX", note: "シ", rightNote: "B4", autoLeftNote: ["G3", "D4", "G4"] },
+  { step: 36, phrase: 4, fingerNum: 5, fingerKey: "PINKY", note: "レ", rightNote: "D5", autoLeftNote: ["B3", "D4", "G4"] },
+  { step: 37, phrase: 4, fingerNum: 5, fingerKey: "PINKY", note: "レ", rightNote: "D5", autoLeftNote: ["B3", "D4", "G4"] },
+  { step: 38, phrase: 4, fingerNum: 5, fingerKey: "PINKY", note: "レ", rightNote: "D5", autoLeftNote: ["B3", "D4", "F#4"] },
+  { step: 39, phrase: 4, fingerNum: 1, fingerKey: "THUMB", note: "ソ", rightNote: "G4", autoLeftNote: ["E3", "B3", "E4"] },
+  { step: 40, phrase: 4, fingerNum: 2, fingerKey: "INDEX", note: "ラ", rightNote: "A4", autoLeftNote: ["F#3", "B3", "E4"] },
+  { step: 41, phrase: 4, fingerNum: 3, fingerKey: "MIDDLE", note: "シ", rightNote: "B4", autoLeftNote: ["G3", "B3", "E4"] },
+  { step: 42, phrase: 4, fingerNum: 4, fingerKey: "RING", note: "ド", rightNote: "C5", autoLeftNote: ["A3", "E4"] },
+  { step: 43, phrase: 4, fingerNum: 4, fingerKey: "RING", note: "ド", rightNote: "C5", autoLeftNote: ["A3", "G4"] },
+  { step: 44, phrase: 4, fingerNum: 2, fingerKey: "INDEX", note: "ラ", rightNote: "A4", autoLeftNote: ["D3", "C4", "F#4"] },
+  { step: 45, phrase: 4, fingerNum: 1, fingerKey: "THUMB", note: "ソ", rightNote: "G4", autoLeftNote: ["G3", "B3"] }
+];
+
+// If You're Happy And You Know It (arr. Benny Chaw) — ステップデータ + MusicXML のリズム・拍子・テンポを統合
+const IF_YOURE_HAPPY_SEQUENCE = [
+  { step: 1, phrase: 1, fingerNum: 1, fingerKey: "THUMB", note: "ソ", rightNote: "G4", autoLeftNote: null },
+  { step: 2, phrase: 1, fingerNum: 1, fingerKey: "THUMB", note: "ソ", rightNote: "G4", autoLeftNote: null },
+  { step: 3, phrase: 1, fingerNum: 4, fingerKey: "RING", note: "ド", rightNote: "C5", autoLeftNote: "C3" },
+  { step: 4, phrase: 1, fingerNum: 4, fingerKey: "RING", note: "ド", rightNote: "C5", autoLeftNote: null },
+  { step: 5, phrase: 1, fingerNum: 4, fingerKey: "RING", note: "ド", rightNote: "C5", autoLeftNote: ["E3", "G3"] },
+  { step: 6, phrase: 1, fingerNum: 4, fingerKey: "RING", note: "ド", rightNote: "C5", autoLeftNote: null },
+  { step: 7, phrase: 1, fingerNum: 4, fingerKey: "RING", note: "ド", rightNote: "C5", autoLeftNote: "C3" },
+  { step: 8, phrase: 1, fingerNum: 4, fingerKey: "RING", note: "ド", rightNote: "C5", autoLeftNote: null },
+  { step: 9, phrase: 1, fingerNum: 3, fingerKey: "MIDDLE", note: "シ", rightNote: "B4", autoLeftNote: ["E3", "G3"] },
+  { step: 10, phrase: 1, fingerNum: 4, fingerKey: "RING", note: "ド", rightNote: "C5", autoLeftNote: null },
+  { step: 11, phrase: 1, fingerNum: 5, fingerKey: "PINKY", note: "レ", rightNote: "D5", autoLeftNote: ["B2", "F3", "G3"] },
+  { step: 12, phrase: 1, fingerNum: 1, fingerKey: "THUMB", note: "ソ", rightNote: "G4", autoLeftNote: null },
+  { step: 13, phrase: 1, fingerNum: 1, fingerKey: "THUMB", note: "ソ", rightNote: "G4", autoLeftNote: null },
+  { step: 14, phrase: 2, fingerNum: 4, fingerKey: "RING", note: "レ", rightNote: "D5", autoLeftNote: "B2" },
+  { step: 15, phrase: 2, fingerNum: 4, fingerKey: "RING", note: "レ", rightNote: "D5", autoLeftNote: null },
+  { step: 16, phrase: 2, fingerNum: 4, fingerKey: "RING", note: "レ", rightNote: "D5", autoLeftNote: ["F3", "G3"] },
+  { step: 17, phrase: 2, fingerNum: 4, fingerKey: "RING", note: "レ", rightNote: "D5", autoLeftNote: null },
+  { step: 18, phrase: 2, fingerNum: 4, fingerKey: "RING", note: "レ", rightNote: "D5", autoLeftNote: "B2" },
+  { step: 19, phrase: 2, fingerNum: 4, fingerKey: "RING", note: "レ", rightNote: "D5", autoLeftNote: null },
+  { step: 20, phrase: 2, fingerNum: 3, fingerKey: "MIDDLE", note: "ド", rightNote: "C5", autoLeftNote: ["F3", "G3"] },
+  { step: 21, phrase: 2, fingerNum: 4, fingerKey: "RING", note: "レ", rightNote: "D5", autoLeftNote: null },
+  { step: 22, phrase: 2, fingerNum: 5, fingerKey: "PINKY", note: "ミ", rightNote: "E5", autoLeftNote: ["C3", "E3", "G3"] },
+  { step: 23, phrase: 2, fingerNum: 4, fingerKey: "RING", note: "ミ", rightNote: "E5", autoLeftNote: null },
+  { step: 24, phrase: 2, fingerNum: 4, fingerKey: "RING", note: "ミ", rightNote: "E5", autoLeftNote: null },
+  { step: 25, phrase: 3, fingerNum: 5, fingerKey: "PINKY", note: "ファ", rightNote: "F5", autoLeftNote: "C3" },
+  { step: 26, phrase: 3, fingerNum: 5, fingerKey: "PINKY", note: "ファ", rightNote: "F5", autoLeftNote: null },
+  { step: 27, phrase: 3, fingerNum: 5, fingerKey: "PINKY", note: "ファ", rightNote: "F5", autoLeftNote: ["F3", "A3"] },
+  { step: 28, phrase: 3, fingerNum: 5, fingerKey: "PINKY", note: "ファ", rightNote: "F5", autoLeftNote: null },
+  { step: 29, phrase: 3, fingerNum: 1, fingerKey: "THUMB", note: "ラ", rightNote: "A4", autoLeftNote: "C3" },
+  { step: 30, phrase: 3, fingerNum: 1, fingerKey: "THUMB", note: "ラ", rightNote: "A4", autoLeftNote: null },
+  { step: 31, phrase: 3, fingerNum: 5, fingerKey: "PINKY", note: "ファ", rightNote: "F5", autoLeftNote: ["F3", "A3"] },
+  { step: 32, phrase: 3, fingerNum: 5, fingerKey: "PINKY", note: "ファ", rightNote: "F5", autoLeftNote: null },
+  { step: 33, phrase: 3, fingerNum: 4, fingerKey: "RING", note: "ミ", rightNote: "E5", autoLeftNote: "C3" },
+  { step: 34, phrase: 3, fingerNum: 4, fingerKey: "RING", note: "ミ", rightNote: "E5", autoLeftNote: null },
+  { step: 35, phrase: 3, fingerNum: 4, fingerKey: "RING", note: "ミ", rightNote: "E5", autoLeftNote: ["E3", "G3"] },
+  { step: 36, phrase: 3, fingerNum: 3, fingerKey: "MIDDLE", note: "レ", rightNote: "D5", autoLeftNote: null },
+  { step: 37, phrase: 3, fingerNum: 2, fingerKey: "INDEX", note: "ド", rightNote: "C5", autoLeftNote: "C3" },
+  { step: 38, phrase: 3, fingerNum: 2, fingerKey: "INDEX", note: "ド", rightNote: "C5", autoLeftNote: null },
+  { step: 39, phrase: 3, fingerNum: 4, fingerKey: "RING", note: "ミ", rightNote: "E5", autoLeftNote: ["E3", "G3"] },
+  { step: 40, phrase: 3, fingerNum: 4, fingerKey: "RING", note: "ミ", rightNote: "E5", autoLeftNote: null },
+  { step: 41, phrase: 4, fingerNum: 3, fingerKey: "MIDDLE", note: "レ", rightNote: "D5", autoLeftNote: "B2" },
+  { step: 42, phrase: 4, fingerNum: 3, fingerKey: "MIDDLE", note: "レ", rightNote: "D5", autoLeftNote: null },
+  { step: 43, phrase: 4, fingerNum: 3, fingerKey: "MIDDLE", note: "レ", rightNote: "D5", autoLeftNote: ["F3", "G3"] },
+  { step: 44, phrase: 4, fingerNum: 2, fingerKey: "INDEX", note: "ド", rightNote: "C5", autoLeftNote: null },
+  { step: 45, phrase: 4, fingerNum: 1, fingerKey: "THUMB", note: "シ", rightNote: "B4", autoLeftNote: "B2" },
+  { step: 46, phrase: 4, fingerNum: 1, fingerKey: "THUMB", note: "シ", rightNote: "B4", autoLeftNote: null },
+  { step: 47, phrase: 4, fingerNum: 2, fingerKey: "INDEX", note: "ラ", rightNote: "A4", autoLeftNote: ["F3", "G3"] },
+  { step: 48, phrase: 4, fingerNum: 1, fingerKey: "THUMB", note: "シ", rightNote: "B4", autoLeftNote: null },
+  { step: 49, phrase: 4, fingerNum: 2, fingerKey: "INDEX", note: "ド", rightNote: "C5", autoLeftNote: ["C3", "E3", "G3"] }
+];
+
+/**
+ * ステップデータと MusicXML のリズム・拍子・周波数情報を統合する
+ */
+function buildStepSong(id, title, xmlText, stepSeq) {
+  const score = parseMusicXmlMelody(xmlText, { homeOctave: 4 });
+  const sequence = stepSeq.map((item, i) => {
+    const xmlNote = score.notes[i];
+    return {
+      ...item,
+      freq: xmlNote ? xmlNote.freq : undefined,
+      measure: xmlNote ? xmlNote.measure : undefined,
+      onset: xmlNote ? xmlNote.onset : i * 2,
+      ioi: xmlNote ? xmlNote.ioi : 2,
+      dur: xmlNote ? xmlNote.dur : 2
+    };
+  });
+  return {
+    id,
+    title,
+    sequence,
+    firstMeasure: Math.max(1, score.measures[0]),
+    instruments: { melody: ["piano"], chord: "piano" },
+    bpm: score.bpm || 90,
+    meter: score.meter
+  };
+}
+
+const STEP_SCORE_SONGS = [
+  buildStepSong("furusato", "ふるさと", furusatoXml, FURUSATO_SEQUENCE),
+  buildStepSong("if_youre_happy", "If You're Happy And You Know It", ifYoureHappyXml, IF_YOURE_HAPPY_SEQUENCE)
+];
+
 // ---- リズム（8分音符=1）。落ちてくるノーツの間隔と長さに使う ----
 // よろこびのうた：4分音符=2。4・8・16小節目は「付点4分・8分・2分」、10・11小節目に8分音符2つ
 const ODE_TO_JOY_RHYTHM = [
@@ -1010,6 +1146,7 @@ export const SONGS = {
     bpm: def.bpm,
     meter: def.score.meter
   }])),
+  ...Object.fromEntries(STEP_SCORE_SONGS.map((def) => [def.id, def])),
   // 聖者の行進（ピアノ伴奏）：ブランチ claude/funny-turing-x1guvu で作った、5本指の位置で弾ける両手アレンジ版
   // （楽譜ファイルの「聖者の行進」は、トランペットとチューバで鳴らす別アレンジ）
   saints_piano: {
@@ -1127,7 +1264,9 @@ function playAccompaniment(target) {
   lastAccompHitBeats = target.beats || 1;
 
   // 低音（C4未満）が鳴る拍でペダルを踏み替え、前の和音の響きを自然に消してから新しい和音を伸ばす
-  const chord = Array.isArray(target.autoChord) ? target.autoChord : target.autoLeftNote ? [target.autoLeftNote] : [];
+  const chord = Array.isArray(target.autoChord) ? target.autoChord
+    : Array.isArray(target.autoLeftNote) ? target.autoLeftNote
+    : target.autoLeftNote ? [target.autoLeftNote] : [];
   const hasBass = chord.some(isBassNote);
   flushPendingOffbeats(hasBass);
   if (hasBass) {
@@ -1366,7 +1505,7 @@ function computeAllFingerFeatures(width, height) {
     const tip = smoothedLandmarksPool[cfg.tipIdx];
     const dist = Math.max(Math.hypot(base.x - wrist.x, base.y - wrist.y), height * 0.05);
     ry[key] = (tip.y - base.y) / dist;
-    vy[key] = landmarkFilters[cfg.tipIdx].getVelocityY() / dist;
+    vy[key] = landmarkFilters[cfg.tipIdx].getVelocityY();
   });
   return { ry, vy };
 }
@@ -1525,15 +1664,14 @@ export function updateCachedConnections(fingerKey) {
   currentOtherConnections = connections;
 }
 
-// 指ごとの平滑化下降速度閾値（単位：手の大きさ/秒 ＝ 指先の下降速度 ÷ 手首〜指の付け根の距離）
-// 解像度・手とカメラの距離に依存しない。public/dataset の打鍵録画を再生したシミュレーションで、
-// 打鍵ピーク速度（中央値 約10、下位10% 約7）を拾いつつ静止・空中動作の誤検知が増えない値に設定
+// 指ごとの推奨平滑化下降速度閾値（ピクセル/秒）
+// 打鍵時は急峻な下降（300〜1600 px/s）が発生し、静止待機時（0〜8 px/s）を完全に遮断
 export const FINGER_VY_THRESHOLDS = {
-  THUMB: 5.0,
-  INDEX: 6.0,
-  MIDDLE: 6.0,
-  RING: 6.0,
-  PINKY: 6.0
+  THUMB: 160,
+  INDEX: 220,
+  MIDDLE: 220,
+  RING: 180,
+  PINKY: 180
 };
 
 // 早期リフト復帰と判定する上向き速度（手の大きさ/秒）
@@ -1603,8 +1741,8 @@ updateCachedConnections(currentFingerKey);
 export function updateHandGuideWidget(fingerKey, fingerNum, note) {
   // 光る指の色をノーツ（レーン）と同じ色にする
   const guide = document.getElementById("hand-guide-widget");
-  if (guide && typeof LANE_COLORS !== "undefined" && LANE_COLORS[fingerKey]) {
-    guide.style.setProperty("--active-finger-color", LANE_COLORS[fingerKey]);
+  if (guide) {
+    guide.style.setProperty("--active-finger-color", getLaneColor(fingerKey));
   }
   const fingerEls = document.querySelectorAll(".hand-finger");
   fingerEls.forEach((el) => {
@@ -1617,7 +1755,9 @@ export function updateHandGuideWidget(fingerKey, fingerNum, note) {
 
   const label = document.getElementById("hand-guide-label");
   if (label) {
-    label.textContent = `右手 ${fingerNum || ""} ${note || ""}`.trim();
+    label.textContent = fingerNumberMode
+      ? `右手 ${fingerNum || ""}`.trim()
+      : `右手 ${fingerNum || ""} ${note || ""}`.trim();
   }
 }
 
@@ -1686,6 +1826,23 @@ export function renderSongGuideUI() {
  */
 export function getTargetFingerColor(stepIndex) {
   const current = currentSequence[stepIndex];
+  if (colorCodingEnabled && current && LANE_COLORS[current.fingerKey]) {
+    const hex = LANE_COLORS[current.fingerKey];
+    const v = parseInt(hex.slice(1), 16);
+    const r = (v >> 16) & 255;
+    const g = (v >> 8) & 255;
+    const b = v & 255;
+    return {
+      stroke: `rgba(${r}, ${g}, ${b}, 0.95)`,
+      halo: `rgba(${r}, ${g}, ${b}, 0.28)`,
+      accent: `rgba(${r}, ${g}, ${b}, 0.65)`,
+      glow: `rgba(${r}, ${g}, ${b}, 0.85)`,
+      fill: hex,
+      r, g, b,
+      rgb: `${r}, ${g}, ${b}`,
+      name: current.fingerKey.toLowerCase()
+    };
+  }
   if (!current) {
     return {
       stroke: "rgba(200, 54, 80, 0.95)",
@@ -1817,9 +1974,15 @@ export const noteProgressMap = new Map();
 // ==========================================================================
 export let playMode = false;
 const LANE_ORDER = ["THUMB", "INDEX", "MIDDLE", "RING", "PINKY"];
-// 指ごとの色（docs/notes_design.html で検討）。色覚の違いがあっても隣どうしのレーンを見分けやすい
-// 橙・水色・黄・赤紫・青緑の組み合わせ。手のイラストの光る指も同じ色にする
-const LANE_COLORS = { THUMB: "#E69F00", INDEX: "#56B4E9", MIDDLE: "#F0E442", RING: "#CC79A7", PINKY: "#00B386" };
+// 指ごとの固有カラー（親指＝赤、人差し指＝黄、中指＝緑、薬指＝青、小指＝紫）
+const LANE_COLORS = { THUMB: "#FF4D4F", INDEX: "#FFD600", MIDDLE: "#00E676", RING: "#29B6F6", PINKY: "#B388FF" };
+
+let fingerNumberMode = false;     // 設定パネルの「指番号ガイド表示（1〜5）」
+let colorCodingEnabled = true;    // 設定パネルの「指別カラーコーディング」
+
+function getLaneColor(fingerKey) {
+  return colorCodingEnabled ? (LANE_COLORS[fingerKey] || "#00e5ff") : "#00e5ff";
+}
 
 // 色の上に載せる文字の色（明るい色には黒、暗い色には白）
 function textColorOn(hex) {
@@ -2031,7 +2194,7 @@ function drawRhythmHighway(now) {
     }
     const x = playLayout.lanes[n.fingerKey] - (laneW - 10) / 2;
     const w = laneW - 10;
-    const color = LANE_COLORS[n.fingerKey] || "#00e5ff";
+    const color = getLaneColor(n.fingerKey);
     const top = yb - h;
     ctx.globalAlpha = played ? alpha * 0.5 : 1;
 
@@ -2051,20 +2214,20 @@ function drawRhythmHighway(now) {
     ctx.strokeStyle = isLead ? "#ffffff" : hexToRgba(color, 0.95);
     ctx.stroke();
 
-    // 音名（指番号は出さない）を、ノーツの見えている部分の縦の真ん中に置く。
-    // 低いオクターブの音は音名の下に点を付け、音名と点をひとまとまりとして中央にそろえる
+    // 指番号ガイド表示ON時は「1〜5」、OFF時は音名（「ド」等）をノーツ中央に描画する
     ctx.fillStyle = isLead || played ? textColorOn(color) : "#ffffff";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    const low = isLowOctave(n);
+    const low = !fingerNumberMode && isLowOctave(n);
+    const labelText = fingerNumberMode ? String(n.fingerNum) : n.note;
     const fsBase = Math.max(14, Math.min(26, laneW * 0.32));
     const fs = Math.max(10, Math.min(fsBase, (h - 6) / (low ? 1.4 : 1.05)));
-    ctx.font = `bold ${n.note.length > 1 ? fs * 0.8 : fs}px "Hiragino Sans", "Noto Sans JP", sans-serif`;
+    ctx.font = `bold ${labelText.length > 1 ? fs * 0.8 : fs}px "Hiragino Sans", "Noto Sans JP", sans-serif`;
     const visTop = Math.max(top, topY);
     const visBottom = played ? Math.min(yb, zoneBottom) : yb;
     const cy = (visTop + visBottom) / 2;
     const glyphY = low ? cy - fs * 0.2 : cy;
-    ctx.fillText(n.note, x + w / 2, glyphY + 1);
+    ctx.fillText(labelText, x + w / 2, glyphY + 1);
     if (low) {
       ctx.beginPath();
       ctx.arc(x + w / 2, glyphY + fs * 0.62, Math.max(1.8, fs * 0.11), 0, Math.PI * 2);
@@ -2074,12 +2237,31 @@ function drawRhythmHighway(now) {
   ctx.restore();
   ctx.globalAlpha = 1;
 
-  // 判定ライン（白い線1本）のみ。
-  // 指番号（1〜5）とその枠、レーンと手の指先を結ぶ線は表示しない
-  // （どの指かは、レーンの位置と、ノーツと同じ色で光る手のイラストの指で伝わるため）
+  // 判定ライン（白い線1本）。指番号ガイド表示ON時は判定ライン下にレーン番号（1〜5）を表示する
   ctx.strokeStyle = "rgba(255,255,255,0.85)";
   ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(left, hitY); ctx.lineTo(left + width, hitY); ctx.stroke();
+
+  if (fingerNumberMode) {
+    LANE_ORDER.forEach((k) => {
+      const cx = playLayout.lanes[k];
+      const color = getLaneColor(k);
+      const r = 11;
+      const ly = hitY + 15;
+      ctx.beginPath();
+      ctx.arc(cx, ly, r, 0, Math.PI * 2);
+      ctx.fillStyle = colorCodingEnabled ? hexToRgba(color, 0.26) : "rgba(255,255,255,0.14)";
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = color;
+      ctx.stroke();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `bold 12px "Hiragino Sans", "Noto Sans JP", sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(FINGER_CONFIGS[k].fingerNum), cx, ly + 0.5);
+    });
+  }
 }
 
 // ==========================================================================
@@ -2106,14 +2288,12 @@ function handleFreePlay(width, height, now) {
   LANE_ORDER.forEach((k) => {
     const st = freeState[k];
     const m = fingerThresholdModels[k] || { hitRy: 0.6, liftRy: 0.57 };
-    const vth = FINGER_VY_THRESHOLDS[k] || 6;
+    const vth = FINGER_VY_THRESHOLDS[k] || 200;
     if (st.state === "TOUCHED") {
-      st.low = Math.max(st.low, ry[k]);
-      const rise = FINGER_RISE_TO_REARM[k] || 0.3;
-      if (ry[k] <= m.liftRy || st.low - ry[k] >= rise || vy[k] <= -LIFT_REBOUND_VY) st.state = "IDLE";
+      if (ry[k] <= m.liftRy || (vy[k] <= -100 && ry[k] <= m.hitRy - 0.02)) st.state = "IDLE";
       return;
     }
-    if (ry[k] >= m.hitRy && vy[k] >= vth && now - st.last >= MIN_TAP_INTERVAL_MS) {
+    if (ry[k] >= m.hitRy && vy[k] >= vth) {
       candidates.push({ k, strength: vy[k] / vth });
     }
   });
@@ -2147,7 +2327,7 @@ function freePlayHit(hitKey, now, source) {
   renderSongGuideUI();
   freeHitMarks.push({ finger: hitKey, t: now });
   freeLastFinger = hitKey;
-  spawnHitParticles(playMode ? laneHitPos(hitKey) : getGuideFingerScreenPos(hitKey), LANE_COLORS[hitKey]);
+  spawnHitParticles(playMode ? laneHitPos(hitKey) : getGuideFingerScreenPos(hitKey), getLaneColor(hitKey));
   const widget = document.getElementById("hand-guide-widget");
   if (widget) {
     widget.classList.add("hit-pop");
@@ -2174,7 +2354,7 @@ function drawFreeHighway(now) {
   const ctx = notesCtx;
   const { hitY, topY, laneW, left, width } = playLayout;
   if (hitY <= topY) return;
-  if (freeLastFinger) setActiveLane(freeLastFinger, hexToRgba(LANE_COLORS[freeLastFinger], 0.16));
+  if (freeLastFinger) setActiveLane(freeLastFinger, hexToRgba(getLaneColor(freeLastFinger), 0.16));
   else setActiveLane(null, "");
   // 昇っていく光（約0.9秒で消える）
   for (let i = freeHitMarks.length - 1; i >= 0; i--) {
@@ -2184,25 +2364,26 @@ function drawFreeHighway(now) {
     const cx = playLayout.lanes[m.finger];
     const h = 60;
     const yb = hitY - age * (hitY - topY);
+    const color = getLaneColor(m.finger);
     ctx.globalAlpha = 1 - age;
     ctx.beginPath();
     ctx.roundRect(cx - (laneW - 10) / 2, yb - h, laneW - 10, h, 8);
-    ctx.fillStyle = LANE_COLORS[m.finger];
+    ctx.fillStyle = color;
     ctx.fill();
-    ctx.fillStyle = "#0b0d12";
+    ctx.fillStyle = textColorOn(color);
     ctx.font = `bold ${Math.max(14, Math.min(24, laneW * 0.3))}px "Hiragino Sans", "Noto Sans JP", sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(FREE_NOTE_BY_FINGER[m.finger].note, cx, yb - h / 2);
+    ctx.fillText(fingerNumberMode ? String(FINGER_CONFIGS[m.finger].fingerNum) : FREE_NOTE_BY_FINGER[m.finger].note, cx, yb - h / 2);
     ctx.globalAlpha = 1;
   }
-  // 判定ラインと、各指の音名
+  // 判定ラインと、各指の音名（指番号ガイド表示ON時は 1〜5）
   ctx.strokeStyle = "rgba(255,255,255,0.85)";
   ctx.lineWidth = 2;
   ctx.beginPath(); ctx.moveTo(left, hitY); ctx.lineTo(left + width, hitY); ctx.stroke();
   LANE_ORDER.forEach((k) => {
     const cx = playLayout.lanes[k];
-    const color = LANE_COLORS[k];
+    const color = getLaneColor(k);
     const recent = k === freeLastFinger;
     const w = Math.min(laneW - 8, 64), h = 34;
     ctx.beginPath();
@@ -2212,11 +2393,11 @@ function drawFreeHighway(now) {
     ctx.lineWidth = 2;
     ctx.strokeStyle = color;
     ctx.stroke();
-    ctx.fillStyle = recent ? "#0b0d12" : "#ffffff";
+    ctx.fillStyle = recent ? textColorOn(color) : "#ffffff";
     ctx.font = `bold 16px "Hiragino Sans", "Noto Sans JP", sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(FREE_NOTE_BY_FINGER[k].note, cx, hitY + 1);
+    ctx.fillText(fingerNumberMode ? String(FINGER_CONFIGS[k].fingerNum) : FREE_NOTE_BY_FINGER[k].note, cx, hitY + 1);
   });
 }
 
@@ -2236,7 +2417,8 @@ export function triggerNoteHitEffect(stepIndex) {
   const item = currentSequence[stepIndex];
   if (!item) return;
   const targetPos = playMode ? laneHitPos(item.fingerKey) : getGuideFingerScreenPos(item.fingerKey);
-  const color = playMode ? { stroke: LANE_COLORS[item.fingerKey], fill: LANE_COLORS[item.fingerKey] } : getTargetFingerColor(stepIndex);
+  const laneColor = getLaneColor(item.fingerKey);
+  const color = playMode ? { stroke: laneColor, fill: laneColor } : getTargetFingerColor(stepIndex);
 
   // 1. 弾けるリング（ショックウェーブ）
   noteHitParticles.push({
@@ -2342,7 +2524,7 @@ function renderNotesFrame() {
   const scrolling = playMode && lead && typeof lead.onset === "number" && Math.abs(lead.onset - viewOnset) > 0.01;
   const animating = noteHitParticles.length > 0 || freeHitMarks.length > 0 || scrolling;
   const signature = [playMode, isPositioning(), isClearing, currentSongId, currentSongStep, currentFingerKey,
-    viewOnset.toFixed(3), w, h, playLayout.hitY].join("|");
+    fingerNumberMode, colorCodingEnabled, viewOnset.toFixed(3), w, h, playLayout.hitY].join("|");
   const nowMs = performance.now();
   if (!animating && signature === lastNotesSignature && nowMs - lastNotesFullDraw < NOTES_FORCE_REDRAW_MS) {
     return;
@@ -2413,7 +2595,7 @@ export function applyFingerThreshold(fingerKey) {
     thVal.textContent = hitRyThreshold.toFixed(2);
   }
   if (vThVal) {
-    const vyTh = FINGER_VY_THRESHOLDS[fingerKey] || 6.0;
+    const vyTh = FINGER_VY_THRESHOLDS[fingerKey] || 200;
     vThVal.textContent = `${vyTh}`;
   }
 }
@@ -4028,11 +4210,10 @@ function drawRawHandLandmarks(results) {
   // 現在のターゲット音符とハイライト色（単発＝水色、連続＝黄色→緑色→青色）
   const targetColor = getTargetFingerColor(currentSongStep);
 
-  // 対象指先端の平滑化下降速度を「手の大きさ（手首〜指の付け根の距離）/秒」に正規化（下向き > 0、上向き < 0）
-  // ピクセル/秒のままだと、カメラ解像度や手とカメラの距離で同じ動きでも値が変わり感度が端末ごとにぶれるため
+  // 対象指先端の平滑化下降速度（ピクセル/秒）を取得（下向き > 0、上向き < 0）
   const tipFilter = landmarkFilters[fingerConfig.tipIdx];
-  const tipVy = tipFilter ? tipFilter.getVelocityY() / safeBaseDistPx : 0;
-  const hitVyThreshold = FINGER_VY_THRESHOLDS[currentFingerKey] || 6.0;
+  const tipVy = tipFilter ? tipFilter.getVelocityY() : 0;
+  const hitVyThreshold = FINGER_VY_THRESHOLDS[currentFingerKey] || 200;
 
   // 3. レベル2打鍵認識（変位 ＋ 平滑化下降速度ゲートにより机面静止待機誤爆を完全遮断）
   // カウントダウン中（3・2・1）、完走クリア演出中、および画面外復帰初フレームは打鍵認識を安全にスキップ
@@ -4053,32 +4234,22 @@ function drawRawHandLandmarks(results) {
 
   if (tapState === "IDLE" && !isCountingDown && !isClearing && !isReacquired && !isPositioning()) {
     // 平滑化変位が打鍵閾値以上 かつ 下降速度が速度閾値以上（勢いよく振り下ろされた瞬間）
-    if (currentRy >= hitRyThreshold && tipVy >= hitVyThreshold && now - lastHitTime >= MIN_TAP_INTERVAL_MS) {
+    if (currentRy >= hitRyThreshold && tipVy >= hitVyThreshold) {
       tapState = "TOUCHED";
       lastHitTime = now;
       frameHit = true;
       touchedLowestRy = currentRy;
       touchedFingerKey = currentFingerKey;
-      songHit("camera", `色:${targetColor.name} ry=${currentRy.toFixed(3)} >= TH:${hitRyThreshold.toFixed(2)}, vy=${tipVy.toFixed(1)} >= V_TH:${hitVyThreshold}`);
+      songHit("camera", `色:${targetColor.name} ry=${currentRy.toFixed(3)} >= TH:${hitRyThreshold.toFixed(2)}, vy=${tipVy.toFixed(0)} >= V_TH:${hitVyThreshold}`);
     }
   } else if (tapState === "TOUCHED") {
-    // 打鍵で対象指が次の指に切り替わった場合は、新しい指の現在位置から最下点の記録を始める
-    if (touchedFingerKey !== currentFingerKey) {
-      touchedFingerKey = currentFingerKey;
-      touchedLowestRy = currentRy;
-    }
-    touchedLowestRy = Math.max(touchedLowestRy, currentRy);
-
-    // 指のリフト復帰（どれか1つで次の打鍵を受け付ける）：
-    // 1. 変位がリフト閾値を下回った（通常の位置復帰）
-    // 2. 最も下がった位置から指が一定量戻った（構えやカメラ角度に左右されない相対的な復帰）
-    // 3. 指先が上向きに動いた（上向き速度 >= 1.5 手の大きさ/秒）
+    // 指のリフト復帰：
+    // 1. 変位がリフト閾値を下回った場合（通常の位置復帰）
+    // 2. または、指先が上向きにリバウンド反転（tipVy <= -100 px/s）し、かつ打鍵変位からわずかに抜けた場合（早期リフト復帰）
     const isLiftByPosition = currentRy <= liftRyThreshold;
-    const riseToRearm = FINGER_RISE_TO_REARM[currentFingerKey] || 0.3;
-    const isLiftByRise = touchedLowestRy - currentRy >= riseToRearm;
-    const isLiftByRebound = tipVy <= -LIFT_REBOUND_VY;
+    const isLiftByRebound = tipVy <= -100 && currentRy <= (hitRyThreshold - 0.02);
 
-    if (isLiftByPosition || isLiftByRise || isLiftByRebound) {
+    if (isLiftByPosition || isLiftByRebound) {
       tapState = "IDLE";
       updateStateHud("IDLE", false);
     }
@@ -4637,6 +4808,50 @@ document.getElementById("position-btn")?.addEventListener("click", (e) => {
   e.stopPropagation();
   setSettingsOpen(false);
   if (isPredicting && !isPositioning()) beginPositioning(() => {});
+});
+
+// 指番号ガイド表示（1〜5）のオン／オフ
+const FINGER_NUM_STORAGE_KEY = "piarno_finger_number_mode";
+const fingerNumToggleBtn = document.getElementById("finger-number-toggle-btn");
+const applyFingerNumberMode = () => {
+  document.body.classList.toggle("finger-number-mode", fingerNumberMode);
+  if (fingerNumToggleBtn) fingerNumToggleBtn.setAttribute("aria-pressed", String(fingerNumberMode));
+  renderSongGuideUI();
+  lastNotesSignature = "";
+};
+try {
+  fingerNumberMode = localStorage.getItem(FINGER_NUM_STORAGE_KEY) === "true";
+} catch {
+  fingerNumberMode = false;
+}
+applyFingerNumberMode();
+fingerNumToggleBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  fingerNumberMode = !fingerNumberMode;
+  try { localStorage.setItem(FINGER_NUM_STORAGE_KEY, String(fingerNumberMode)); } catch { /* 保存できない環境 */ }
+  applyFingerNumberMode();
+});
+
+// 指別カラーコーディングのオン／オフ
+const COLOR_CODING_STORAGE_KEY = "piarno_color_coding_enabled";
+const colorCodingToggleBtn = document.getElementById("color-coding-toggle-btn");
+const applyColorCodingMode = () => {
+  document.body.classList.toggle("color-coding-on", colorCodingEnabled);
+  if (colorCodingToggleBtn) colorCodingToggleBtn.setAttribute("aria-pressed", String(colorCodingEnabled));
+  renderSongGuideUI();
+  lastNotesSignature = "";
+};
+try {
+  colorCodingEnabled = localStorage.getItem(COLOR_CODING_STORAGE_KEY) !== "false";
+} catch {
+  colorCodingEnabled = true;
+}
+applyColorCodingMode();
+colorCodingToggleBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  colorCodingEnabled = !colorCodingEnabled;
+  try { localStorage.setItem(COLOR_CODING_STORAGE_KEY, String(colorCodingEnabled)); } catch { /* 保存できない環境 */ }
+  applyColorCodingMode();
 });
 
 // 手のずれの警告（矢印）のオン／オフ
