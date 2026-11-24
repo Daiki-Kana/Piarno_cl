@@ -2120,9 +2120,11 @@ function drawRhythmHighway(now) {
   const { hitY, topY, laneW, left, width } = playLayout;
   const seq = currentSequence;
   if (!seq || !seq.length || hitY <= topY) return;
-  // 8分音符1つぶんの高さ(px)。16分音符が多い曲などは、曲ごとの倍率（noteSpacing）で縦に広げる
-  const spacing = (SONGS[currentSongId] && SONGS[currentSongId].noteSpacing) || 1;
-  const ppe = Math.max(14, Math.min(46, (hitY - topY) / 18)) * spacing;
+  // 拍子（楽譜から読んだ曲は楽譜どおり。それ以外は 4/4・弱起なし）
+  const meter = (SONGS[currentSongId] && SONGS[currentSongId].meter) || { barEighths: 8, beatEighths: 2, firstBarStart: 0 };
+  // 約2小節先まで（barEighths * 2 個の8分音符）が画面に収まるようにし、ノーツの長さを十分に伸ばす
+  const visibleEighths = (meter.barEighths || 8) * 2;
+  const ppe = Math.max(20, (hitY - topY) / visibleEighths);
 
   const lead = seq[Math.min(currentSongStep, seq.length - 1)];
   const target = typeof lead.onset === "number" ? lead.onset : 0;
@@ -2137,8 +2139,6 @@ function drawRhythmHighway(now) {
   const firstE = Math.ceil(viewOnset - 1);
   // 曲の最初の小節の番号（楽譜の途中から始まる曲もある）
   const firstBar = (SONGS[currentSongId] && SONGS[currentSongId].firstMeasure) || 1;
-  // 拍子（楽譜から読んだ曲は楽譜どおり。それ以外は 4/4・弱起なし）
-  const meter = (SONGS[currentSongId] && SONGS[currentSongId].meter) || { barEighths: 8, beatEighths: 2, firstBarStart: 0 };
   for (let e = firstE; ; e++) {
     const y = yOf(e);
     if (y < topY) break;

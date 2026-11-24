@@ -344,29 +344,19 @@ html, body {
 #hand-finger-RING   { --finger-color: #29B6F6; }
 #hand-finger-PINKY  { --finger-color: #B388FF; }
 
-/* 各指オーバーレイ（通常時は非表示、色コーディングON時は非アクティブ指も薄く着色） */
+/* 各指オーバーレイ（通常時はパスを非表示にし、アクティブな1本のみハイライト） */
 .hand-finger {
-  opacity: 0;
   pointer-events: none;
+}
+
+.hand-finger .finger-path {
+  opacity: 0;
   transition: opacity 0.15s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
-body.color-coding-on .hand-finger {
-  opacity: 0.42;
-}
-
-body.color-coding-on .hand-finger .finger-path {
-  fill: var(--finger-color, #00E5FF);
-  stroke: none;
-}
-
-/* 選択された指（アクティブ：指色またはシアンで鮮やかに発光） */
-body.color-coding-on .hand-finger.active,
-.hand-finger.active {
-  opacity: 1;
-}
-
+/* 選択された指（アクティブ：1本のみ指色またはシアンで鮮やかに発光） */
 .hand-finger.active .finger-path {
+  opacity: 1;
   /* 光る指はノーツ（レーン）と同じ色。色は main.js の updateHandGuideWidget が --active-finger-color に設定 */
   fill: var(--active-finger-color, #00E5FF);
   stroke: none;
@@ -390,14 +380,6 @@ body.color-coding-on .hand-finger.active,
 
 body.finger-number-mode .finger-num-label {
   display: block;
-}
-
-body.finger-number-mode .hand-finger {
-  opacity: 1;
-}
-
-body.finger-number-mode:not(.color-coding-on) .hand-finger:not(.active) .finger-path {
-  fill: transparent;
 }
 
 /* 打鍵時の一瞬のポップフィードバック */
