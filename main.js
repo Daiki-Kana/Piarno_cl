@@ -2122,9 +2122,9 @@ function drawRhythmHighway(now) {
   if (!seq || !seq.length || hitY <= topY) return;
   // 拍子（楽譜から読んだ曲は楽譜どおり。それ以外は 4/4・弱起なし）
   const meter = (SONGS[currentSongId] && SONGS[currentSongId].meter) || { barEighths: 8, beatEighths: 2, firstBarStart: 0 };
-  // 約2小節先まで（barEighths * 2 個の8分音符）が画面に収まるようにし、ノーツの長さを十分に伸ばす
-  const visibleEighths = (meter.barEighths || 8) * 2;
-  const ppe = Math.max(20, (hitY - topY) / visibleEighths);
+  // 約1.2小節先まで（barEighths * 1.25 個の8分音符）が画面に収まるようにし、ノーツの長さをさらに伸ばす
+  const visibleEighths = Math.max(6, Math.round((meter.barEighths || 8) * 1.25));
+  const ppe = Math.max(32, (hitY - topY) / visibleEighths);
 
   const lead = seq[Math.min(currentSongStep, seq.length - 1)];
   const target = typeof lead.onset === "number" ? lead.onset : 0;
