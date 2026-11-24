@@ -2042,11 +2042,11 @@ function layoutPlayView() {
     vc.style.setProperty("--pip-top", `${pipTop}px`);
   }
 
-  // 手のガイド（下中央に大きく）。手のイラストは 200x200 の枠の x=36〜155, y=24〜172 に描かれている
-  const S = Math.round(Math.min(H * 0.4, W * 0.62, 420));
+  // 手のガイド（下中央にギリギリまで大きく）。手のイラストは 200x200 の枠の x=36〜155, y=24〜172 に描かれている
+  const S = Math.round(Math.min(H * 0.58, W * 0.96));
   let handLeft = (W - S) / 2;
   const minLeft = pipLeft + pipW + 8 - S * 0.18; // 小窓と重ならないように
-  if (handLeft < minLeft) handLeft = Math.min(minLeft, W - S * 0.8);
+  if (handLeft < minLeft) handLeft = Math.max(0, Math.min(minLeft, W - S * 0.8));
   const handTop = H - 4 - S * 0.86;
   if (widget) {
     widget.style.left = `${handLeft}px`;
@@ -2064,7 +2064,7 @@ function layoutPlayView() {
   playLayout.laneW = width / 5;
   playLayout.topY = 58;
   // 判定ラインの下に「弾いた音」を残して見せる帯をとる（弾いた直後にノーツが消えないように）
-  playLayout.playedZone = Math.round(Math.max(60, Math.min(110, S * 0.26)));
+  playLayout.playedZone = Math.round(Math.max(50, Math.min(90, S * 0.18)));
   playLayout.hitY = Math.max(playLayout.topY + 140, handTop + S * 0.08 - 26 - playLayout.playedZone);
   LANE_ORDER.forEach((k, i) => { playLayout.lanes[k] = left + playLayout.laneW * (i + 0.5); });
 
